@@ -1,14 +1,14 @@
 /* eslint-disable jsx-a11y/alt-text */
+import React, { ChangeEvent, useRef, useState } from 'react';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/system/Box';
 
 import './App.css';
 import pixelFn from './helper/pixelization';
-import { CircularProgress } from '@mui/material';
-import { Box } from '@mui/system';
 
 const style = {
   position: 'absolute' as 'absolute',
