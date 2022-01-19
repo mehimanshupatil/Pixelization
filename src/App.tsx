@@ -1,8 +1,26 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { ChangeEvent } from 'react';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import './App.css';
 import pixelFn from './helper/pixelization';
+import { CircularProgress } from '@mui/material';
+import { Box } from '@mui/system';
+
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  display: 'flex',
+  alignItems: 'center',
+  flexDirection: 'column',
+  gap: 4,
+  color: 'white',
+};
 
 const pixelations = {
   officer: [
@@ -60,23 +78,24 @@ const pixelations = {
 };
 
 function App() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+
   const run = (ogImg: HTMLImageElement) => {
     for (let key in pixelations) {
       const pix = pixelFn();
       const img = document.getElementById(key) as HTMLImageElement,
         // @ts-ignore
         options = pixelations[key];
-
       if (img) {
-        // @ts-ignore
         pix(img, ogImg, options);
-        // new ClosePixelation( img, options )
       }
     }
+    setLoading(false);
   };
 
   const imageSelected = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log('img', e.target.files);
+    setLoading(true);
     const files = e.target.files;
     if (e.target.files && e.target.files[0]) {
       const img = document.getElementById('original') as HTMLImageElement;
@@ -90,51 +109,32 @@ function App() {
 
   return (
     <div className='App'>
+      <Button
+        variant='contained'
+        sx={{ mt: 2 }}
+        onClick={() => inputRef.current && inputRef.current.click()}
+      >
+        Select image
+      </Button>
+      <input className='hiddenInput' type='file' ref={inputRef} onChange={imageSelected} />
       <img id='original' />
-      <input type='file' onChange={imageSelected} />
-      <div id='portraits'>
-        <div>
-          <img id='t1' className='portrait' />
-        </div>
-        <div>
-          <img id='t2' className='portrait' />
-        </div>
-        <div>
-          <img id='officer' className='portrait' />
-        </div>
 
-        <div>
-          <img id='stanley' className='portrait' />
-        </div>
+      {loading && (
+        <Modal open>
+          <Box sx={style}>
+            <CircularProgress color='info' />
+            processing Image
+          </Box>
+        </Modal>
+      )}
 
-        <div>
-          <img id='take-my-portrait' className='portrait' />
-        </div>
-
-        <div>
-          <img id='tony' className='portrait' />
-        </div>
-
-        <div>
-          <img id='wonder' className='portrait' />
-        </div>
-
-        <div>
-          <img id='anita' className='portrait' />
-        </div>
-
-        <div>
-          <img id='giraffe' className='portrait' />
-        </div>
-
-        <div>
-          <img id='kendra' className='portrait' />
-        </div>
-
-        <div>
-          <img id='gavin' className='portrait' />
-        </div>
-      </div>
+      <ImageList sx={{ width: '100vw' }} cols={1} variant='standard'>
+        {Object.keys(pixelations).map((key) => (
+          <ImageListItem sx={{ m: 5 }} key={key}>
+            <img id={key} />
+          </ImageListItem>
+        ))}
+      </ImageList>
     </div>
   );
 }
