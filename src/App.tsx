@@ -6,9 +6,13 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/system/Box';
-
+import Typography from '@mui/material/Typography';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import './App.css';
-import pixelFn from './helper/pixelization';
+import pixelFn, { shape } from './helper/pixelization';
+import IconButton from '@mui/material/IconButton';
+import ImageListItemBar from '@mui/material/ImageListItemBar';
+import { download, random } from './helper/helper';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -77,9 +81,14 @@ const pixelations = {
   t2: [{ resolution: 24 }, { shape: 'circle', resolution: 24, size: 16, offset: 12, alpha: 0.5 }],
 };
 
+const shapeArr = Object.values(shape);
+
 function App() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [loading, setLoading] = useState(false);
+
+  const [imgSelected, setImgSelected] = useState(false);
 
   const run = (ogImg: HTMLImageElement) => {
     for (let key in pixelations) {
@@ -91,6 +100,7 @@ function App() {
         pix(img, ogImg, options);
       }
     }
+    setImgSelected(true);
     setLoading(false);
   };
 
@@ -98,7 +108,7 @@ function App() {
     setLoading(true);
     const files = e.target.files;
     if (e.target.files && e.target.files[0]) {
-      const img = document.getElementById('original') as HTMLImageElement;
+      const img = imgRef.current as HTMLImageElement;
       // @ts-ignore
       img.src = URL.createObjectURL(files[0]);
       img.onload = () => {
@@ -107,8 +117,37 @@ function App() {
     }
   };
 
+  const generate = () => {
+    const pix = pixelFn();
+    const img = imgRef.current as HTMLImageElement;
+    const img2Replace = document.getElementById('customArt') as HTMLImageElement;
+    const randomArraySize = random(1, 10);
+
+    const optionslist = Array(randomArraySize)
+      .fill(0)
+      .map(() => {
+        const randomShape = random(0, shapeArr.length - 1);
+        const randomResolution = random(0, 9);
+        const randomSize = random(0, 9);
+        const randomOffset = random(0, 9);
+        const randomAlpha = random(1, 9);
+        return {
+          shape: shapeArr[randomShape],
+          resolution: randomResolution,
+          size: randomSize,
+          offset: randomOffset,
+          alpha: randomAlpha / 10,
+        };
+      });
+
+    pix(img2Replace, img, optionslist);
+  };
+
   return (
     <div className='App'>
+      <Typography variant='h2' component='div' gutterBottom>
+        Pixelize you image
+      </Typography>
       <Button
         variant='contained'
         sx={{ mt: 2 }}
@@ -117,7 +156,7 @@ function App() {
         Select image
       </Button>
       <input className='hiddenInput' type='file' ref={inputRef} onChange={imageSelected} />
-      <img id='original' />
+      <img id='original' ref={imgRef} />
 
       {loading && (
         <Modal open>
@@ -132,9 +171,57 @@ function App() {
         {Object.keys(pixelations).map((key) => (
           <ImageListItem sx={{ m: 5 }} key={key}>
             <img id={key} />
+            {imgSelected && (
+              <ImageListItemBar
+                sx={{
+                  background:
+                    'linear-gradient(to top, rgba(0,0,0,0.7) 0%, ' +
+                    'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+                }}
+                actionIcon={
+                  <IconButton
+                    sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                    onClick={() => download(key)}
+                  >
+                    <FileDownloadIcon />
+                  </IconButton>
+                }
+              />
+            )}
           </ImageListItem>
         ))}
       </ImageList>
+
+      {imgSelected && (
+        <>
+          <Typography variant='h4' component='div' gutterBottom>
+            random art generator
+          </Typography>
+          <Button variant='contained' sx={{ mt: 2 }} onClick={generate}>
+            Generate
+          </Button>
+          <ImageList sx={{ width: '100vw' }} cols={1} variant='standard'>
+            <ImageListItem sx={{ m: 5 }}>
+              <img id='customArt' />
+              <ImageListItemBar
+                sx={{
+                  background:
+                    'linear-gradient(to top, rgba(0,0,0,0.7) 0%, ' +
+                    'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+                }}
+                actionIcon={
+                  <IconButton
+                    sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                    onClick={() => download('customArt')}
+                  >
+                    <FileDownloadIcon />
+                  </IconButton>
+                }
+              />
+            </ImageListItem>
+          </ImageList>
+        </>
+      )}
     </div>
   );
 }

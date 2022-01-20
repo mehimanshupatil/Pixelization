@@ -13,12 +13,17 @@ function isObject(obj: any) {
 
 var console = window.console;
 
-type Options = {
-  resolution: number;
-  size: number;
-  alpha: number;
-  offset: number | { x: number; y: number } | [number, number];
-  shape?: 'diamond' | 'circle' | 'square';
+export enum shape {
+  diamond = 'diamond',
+  circle = 'circle',
+  square = 'square',
+}
+export type Options = {
+  resolution?: number;
+  size?: number;
+  alpha?: number;
+  offset?: number | { x: number; y: number } | [number, number];
+  shape?: shape;
 };
 
 const pixelFn = () => {
