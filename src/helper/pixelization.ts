@@ -11,7 +11,7 @@ function isObject(obj: any) {
   return Object.prototype.toString.call(obj) === '[object Object]';
 }
 
-var console = window.console;
+let console = window.console;
 
 export enum shape {
   diamond = 'diamond',
@@ -63,7 +63,7 @@ const pixelFn = () => {
 
     ctx?.clearRect(0, 0, width, height);
 
-    for (var i = 0, len = options.length; i < len; i++) {
+    for (let i = 0, len = options.length; i < len; i++) {
       renderClosePixels(options[i]);
     }
 
@@ -73,21 +73,21 @@ const pixelFn = () => {
   }
 
   const renderClosePixels = (opts: Options) => {
-    var w = width;
-    var h = height;
+    let w = width;
+    let h = height;
 
     // option defaults
-    var res = opts.resolution || 16;
-    var size = opts.size || res;
-    var alpha = opts.alpha || 1;
-    var offset = opts.offset || 0;
-    var offsetX = 0;
-    var offsetY = 0;
-    var cols = w / res + 1;
-    var rows = h / res + 1;
-    var halfSize = size / 2;
-    var diamondSize = size / Math.SQRT2;
-    var halfDiamondSize = diamondSize / 2;
+    let res = opts.resolution || 16;
+    let size = opts.size || res;
+    let alpha = opts.alpha || 1;
+    let offset = opts.offset || 0;
+    let offsetX = 0;
+    let offsetY = 0;
+    let cols = w / res + 1;
+    let rows = h / res + 1;
+    let halfSize = size / 2;
+    let diamondSize = size / Math.SQRT2;
+    let halfDiamondSize = diamondSize / 2;
 
     if (isObject(offset)) {
       // @ts-ignore
@@ -102,7 +102,7 @@ const pixelFn = () => {
       offsetX = offsetY = offset;
     }
 
-    var row, col, x, y, pixelY, pixelX, pixelIndex, red, green, blue, pixelAlpha;
+    let row, col, x, y, pixelY, pixelX, pixelIndex, red, green, blue, pixelAlpha;
 
     for (row = 0; row < rows; row++) {
       y = (row - 0.5) * res + offsetY;

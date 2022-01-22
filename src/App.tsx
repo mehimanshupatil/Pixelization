@@ -11,8 +11,8 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import IconButton from '@mui/material/IconButton';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import './App.css';
-import pixelFn, { shape } from './helper/pixelization';
-import { download, random } from './helper/helper';
+import pixelFn from './helper/pixelization';
+import { download, randomOptions } from './helper/helper';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -84,26 +84,23 @@ const pixelations = {
     { shape: 'circle', resolution: 8, size: 9, offset: 3 },
   ],
   new2: [
-    { shape: 'square', resolution: 3, size: 8, offset: 5 },
-    { shape: 'diamond', resolution: 8, size: 1, offset: 2 },
-    { shape: 'diamond', resolution: 8, size: 3, offset: 0 },
+    { alpha: 0.5, offset: 6, resolution: 30, shape: 'circle', size: 33 },
+    { alpha: 1, offset: 23, resolution: 16, shape: 'circle', size: 15 },
+    { alpha: 0.9, offset: 21, resolution: 17, shape: 'square', size: 8 },
   ],
   new3: [
     { shape: 'diamond', resolution: 8, size: 3, offset: 6 },
     { shape: 'square', resolution: 0, size: 5, offset: 6 },
   ],
   new4: [
-    { shape: 'circle', resolution: 6, size: 10, offset: 9 },
-    { shape: 'circle', resolution: 11, size: 10, offset: 8 },
-    { shape: 'diamond', resolution: 16, size: 5, offset: 4 },
+    { shape: 'square', resolution: 12, size: 8, offset: 0, alpha: 0.9 },
+    { shape: 'circle', resolution: 30, size: 8, offset: 14, alpha: 1 },
   ],
   new5: [
     { shape: 'diamond', resolution: 9, size: 2, offset: 18 },
     { shape: 'diamond', resolution: 16, size: 13, offset: 16 },
   ],
 };
-
-const shapeArr = Object.values(shape);
 
 const customArtId = 'customArt';
 
@@ -138,31 +135,15 @@ function App() {
       img.onload = () => {
         run(img);
       };
-    }
+    } else setLoading(false);
   };
 
   const generate = () => {
     const pix = pixelFn();
     const img = imgRef.current as HTMLImageElement;
     const img2Replace = document.getElementById(customArtId) as HTMLImageElement;
-    const randomArraySize = random(1, 3);
 
-    const optionslist = Array(randomArraySize)
-      .fill(0)
-      .map(() => {
-        const randomShape = random(0, shapeArr.length - 1);
-        const randomResolution = random(0, 20);
-        const randomSize = random(0, 20);
-        const randomOffset = random(0, 20);
-        const randomAlpha = random(5, 10);
-        return {
-          shape: shapeArr[randomShape],
-          resolution: randomResolution,
-          size: randomSize,
-          offset: randomOffset,
-          alpha: randomAlpha / 10,
-        };
-      });
+    const optionslist = randomOptions();
     console.log('options', optionslist);
     pix(img2Replace, img, optionslist);
   };
