@@ -8,10 +8,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import './App.css';
-import pixelFn, { shape } from './helper/pixelization';
 import IconButton from '@mui/material/IconButton';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
+import './App.css';
+import pixelFn, { shape } from './helper/pixelization';
 import { download, random } from './helper/helper';
 
 const style = {
@@ -79,9 +79,33 @@ const pixelations = {
   ],
   t1: [{ resolution: 24 }],
   t2: [{ resolution: 24 }, { shape: 'circle', resolution: 24, size: 16, offset: 12, alpha: 0.5 }],
+  new: [
+    { shape: 'diamond', resolution: 3, size: 7, offset: 8 },
+    { shape: 'circle', resolution: 8, size: 9, offset: 3 },
+  ],
+  new2: [
+    { shape: 'square', resolution: 3, size: 8, offset: 5 },
+    { shape: 'diamond', resolution: 8, size: 1, offset: 2 },
+    { shape: 'diamond', resolution: 8, size: 3, offset: 0 },
+  ],
+  new3: [
+    { shape: 'diamond', resolution: 8, size: 3, offset: 6 },
+    { shape: 'square', resolution: 0, size: 5, offset: 6 },
+  ],
+  new4: [
+    { shape: 'circle', resolution: 6, size: 10, offset: 9 },
+    { shape: 'circle', resolution: 11, size: 10, offset: 8 },
+    { shape: 'diamond', resolution: 16, size: 5, offset: 4 },
+  ],
+  new5: [
+    { shape: 'diamond', resolution: 9, size: 2, offset: 18 },
+    { shape: 'diamond', resolution: 16, size: 13, offset: 16 },
+  ],
 };
 
 const shapeArr = Object.values(shape);
+
+const customArtId = 'customArt';
 
 function App() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -120,17 +144,17 @@ function App() {
   const generate = () => {
     const pix = pixelFn();
     const img = imgRef.current as HTMLImageElement;
-    const img2Replace = document.getElementById('customArt') as HTMLImageElement;
-    const randomArraySize = random(1, 10);
+    const img2Replace = document.getElementById(customArtId) as HTMLImageElement;
+    const randomArraySize = random(1, 3);
 
     const optionslist = Array(randomArraySize)
       .fill(0)
       .map(() => {
         const randomShape = random(0, shapeArr.length - 1);
-        const randomResolution = random(0, 9);
-        const randomSize = random(0, 9);
-        const randomOffset = random(0, 9);
-        const randomAlpha = random(1, 9);
+        const randomResolution = random(0, 20);
+        const randomSize = random(0, 20);
+        const randomOffset = random(0, 20);
+        const randomAlpha = random(5, 10);
         return {
           shape: shapeArr[randomShape],
           resolution: randomResolution,
@@ -139,8 +163,27 @@ function App() {
           alpha: randomAlpha / 10,
         };
       });
-
+    console.log('options', optionslist);
     pix(img2Replace, img, optionslist);
+  };
+
+  const mergeImg = () => {
+    const gridSize = 4;
+    const ogCanvs = document.getElementById('mergeCanvas') as HTMLCanvasElement;
+    if (imgRef.current) {
+      ogCanvs.width = imgRef.current.width * gridSize;
+      ogCanvs.height = imgRef.current.height * gridSize;
+    }
+    const ctx = ogCanvs.getContext('2d');
+    const ids = Object.keys(pixelations);
+    if (!ctx) return;
+
+    for (let x = 0; x < gridSize; x++) {
+      for (let y = 0; y < gridSize; y++) {
+        const canvs = document.getElementById(ids[x * gridSize + y]) as HTMLCanvasElement;
+        ctx.drawImage(canvs, x * canvs.width, y * canvs.height, canvs.width, canvs.height);
+      }
+    }
   };
 
   return (
@@ -165,6 +208,32 @@ function App() {
             processing Image
           </Box>
         </Modal>
+      )}
+      {imgSelected && (
+        <>
+          <br />
+          <Button variant='contained' sx={{ mt: 2 }} onClick={mergeImg}>
+            merge images
+          </Button>
+          <ImageListItem>
+            <canvas id='mergeCanvas' />
+            <ImageListItemBar
+              sx={{
+                background:
+                  'linear-gradient(to top, rgba(0,0,0,0.7) 0%, ' +
+                  'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+              }}
+              actionIcon={
+                <IconButton
+                  sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                  onClick={() => download('mergeCanvas')}
+                >
+                  <FileDownloadIcon />
+                </IconButton>
+              }
+            />
+          </ImageListItem>
+        </>
       )}
 
       <ImageList sx={{ width: '100vw' }} cols={1} variant='standard'>
@@ -202,7 +271,7 @@ function App() {
           </Button>
           <ImageList sx={{ width: '100vw' }} cols={1} variant='standard'>
             <ImageListItem sx={{ m: 5 }}>
-              <img id='customArt' />
+              <img id={customArtId} />
               <ImageListItemBar
                 sx={{
                   background:
@@ -212,7 +281,7 @@ function App() {
                 actionIcon={
                   <IconButton
                     sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                    onClick={() => download('customArt')}
+                    onClick={() => download(customArtId)}
                   >
                     <FileDownloadIcon />
                   </IconButton>

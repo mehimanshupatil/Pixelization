@@ -16,3 +16,7 @@ code {
 #original {
   display: none;
 }
+
+#mergeCanvas {
+  width: 100vw;
+}
